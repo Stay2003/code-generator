@@ -1,0 +1,43 @@
+package ${package}.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+#foreach ($column in $columns)
+#if($column.attrType == 'Date' && ($column.attrname != 'createTime' && $column.attrname != 'updateTime'))
+import java.util.Date;
+#break
+#end
+#end
+#foreach ($column in $columns)
+#if($column.attrType == 'BigDecimal')
+import java.math.BigDecimal;
+#break
+#end
+#end
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * ${tableComment}实体 该项目是知识星球：java突击队 的内部项目
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@ApiModel("${tableComment}实体")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class ${className}Entity extends BaseEntity {
+	
+#foreach ($column in $columns)
+#if($column.attrname != 'id' && $column.attrname != 'createUserId' && $column.attrname != 'createUserName' && $column.attrname != 'createTime' && $column.attrname != 'updateUserId' && $column.attrname != 'updateUserName' && $column.attrname != 'updateTime' && $column.attrname != 'isDel')
+
+	/**
+	 * $column.columnComment
+	 */
+	@ApiModelProperty("$column.columnComment")
+	private $column.attrType $column.attrname;
+#end
+#end
+}

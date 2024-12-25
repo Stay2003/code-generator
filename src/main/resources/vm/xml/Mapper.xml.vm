@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${package}.mapper.${className}Mapper">
+
+    <resultMap type="cn.net.susan.entity.${className}Entity" id="${className}Result">
+#foreach ($column in $columns)
+        <result property="${column.attrname}"    column="${column.columnName}" />
+#end
+    </resultMap>
+
+
+    <sql id="paginationSql">
+        <if test="pageSize > 0">
+           LIMIT #{pageBegin} , #{pageSize}
+        </if>
+    </sql>
+
+	<sql id="select${className}Column">
+        #foreach($column in $columns) $column.columnName#if($velocityCount != $columns.size()),
+        #end#end
+
+    </sql>
+
+    <sql id="queryWhere">
+        <where>
+            #foreach($column in $columns)
+
+            <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname != ''#end">
+                AND ${column.columnName} = #{$column.attrname}
+            </if>
+            #end
+            AND is_del = 0
+        </where>
+    </sql>
+
+    <select id="findById" parameterType="Long"
+            resultMap="${className}Result">
+        SELECT
+        <include refid="select${className}Column"/>
+        FROM ${tableName}
+        WHERE id = #{id}
+    </select>
+
+    <select id="searchByCondition"
+            parameterType="cn.net.susan.entity.${className}ConditionEntity"
+            resultMap="${className}Result">
+        SELECT
+        <include refid="select${className}Column"/>
+        FROM ${tableName}
+        <include refid="queryWhere"/>
+        <include refid="paginationSql"/>
+    </select>
+
+    <select id="searchCount"
+            parameterType="cn.net.susan.entity.${className}ConditionEntity"
+            resultType="int">
+        SELECT
+        COUNT(*)
+        FROM ${tableName}
+        <include refid="queryWhere"/>
+    </select>
+
+
+    <update id="update" parameterType="cn.net.susan.entity.${className}Entity">
+        UPDATE ${tableName}
+        <trim prefix="SET" suffixOverrides=",">
+            #foreach($column in $columns)
+                #if($column.columnName != $primaryKey.columnName)
+
+                    <if test="$column.attrname != null #if($column.attrType == 'String' and $column.attrname != 'updateTime') and $column.attrname != ''#end">
+                        $column.columnName = #{$column.attrname},
+                    </if>
+
+                #end
+            #end
+            update_time=now(3)
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteByIds">
+        UPDATE ${tableName}
+        SET is_del = 1,update_time=now(3),update_user_id=#{entity.updateUserId},update_user_name=#{entity.updateUserName}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insert" parameterType="cn.net.susan.entity.${className}Entity">
+        INSERT INTO ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #foreach($column in $columns)
+                #if($column.columnName != $primaryKey.columnName || $primaryKey.extra != 'auto_increment')
+
+                    <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname != ''#end">
+                        $column.columnName,
+                    </if>
+
+                #end
+            #end
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #foreach($column in $columns)
+                #if($column.columnName != $primaryKey.columnName || $primaryKey.extra != 'auto_increment')
+                    <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname != ''#end">
+                        #{$column.attrname},
+                    </if>
+
+                #end
+            #end
+        </trim>
+    </insert>
+
+    <select id="findByIds" parameterType="Long"
+            resultMap="${className}Result">
+        SELECT
+          <include refid="select${className}Column"/>
+        FROM ${tableName}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

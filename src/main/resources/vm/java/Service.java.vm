@@ -1,0 +1,90 @@
+package ${package}.service;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ${package}.mapper.${className}Mapper;
+import ${package}.entity.${className}ConditionEntity;
+import ${package}.entity.${className}Entity;
+import ${package}.entity.ResponsePageEntity;
+import cn.net.susan.util.AssertUtil;
+import cn.net.susan.util.FillUserUtil;
+import cn.net.susan.mapper.BaseMapper;
+/**
+ * ${tableComment} 服务层
+ *
+ * @author ${author} 该项目是知识星球：java突击队 的内部项目
+ * @date ${datetime}
+ */
+@Service
+public class ${className}Service extends BaseService< ${className}Entity,  ${className}ConditionEntity> {
+
+	@Autowired
+	private ${className}Mapper ${classname}Mapper;
+
+	/**
+     * 查询${tableComment}信息
+     *
+     * @param ${primaryKey.attrname} ${tableComment}ID
+     * @return ${tableComment}信息
+     */
+	public ${className}Entity findById(${primaryKey.attrType} ${primaryKey.attrname}) {
+	    return ${classname}Mapper.findById(${primaryKey.attrname});
+	}
+
+	/**
+     * 根据条件分页查询${tableComment}列表
+     *
+     * @param ${classname}ConditionEntity ${tableComment}信息
+     * @return ${tableComment}集合
+     */
+	public ResponsePageEntity<${className}Entity> searchByPage(${className}ConditionEntity ${classname}ConditionEntity) {
+		int count = ${classname}Mapper.searchCount(${classname}ConditionEntity);
+		if (count == 0) {
+			return ResponsePageEntity.buildEmpty(${classname}ConditionEntity);
+		}
+		List<${className}Entity> dataList = ${classname}Mapper.searchByCondition(${classname}ConditionEntity);
+		return ResponsePageEntity.build(${classname}ConditionEntity, count, dataList);
+	}
+
+    /**
+     * 新增${tableComment}
+     *
+     * @param ${classname}Entity ${tableComment}信息
+     * @return 结果
+     */
+	public int insert(${className}Entity ${classname}Entity) {
+	    return ${classname}Mapper.insert(${classname}Entity);
+	}
+
+	/**
+     * 修改${tableComment}
+     *
+     * @param ${classname}Entity ${tableComment}信息
+     * @return 结果
+     */
+	public int update(${className}Entity ${classname}Entity) {
+	    return ${classname}Mapper.update(${classname}Entity);
+	}
+
+	/**
+     * 批量删除${tableComment}对象
+     *
+     * @param ids 系统ID集合
+     * @return 结果
+     */
+	public int deleteByIds(List<Long> ids) {
+		List<${className}Entity> entities = ${classname}Mapper.findByIds(ids);
+		AssertUtil.notEmpty(entities, "${tableComment}已被删除");
+
+		${className}Entity entity = new ${className}Entity();
+		FillUserUtil.fillUpdateUserInfo(entity);
+		return ${classname}Mapper.deleteByIds(ids, entity);
+	}
+
+	@Override
+	protected BaseMapper getBaseMapper() {
+		return ${classname}Mapper;
+	}
+
+}
